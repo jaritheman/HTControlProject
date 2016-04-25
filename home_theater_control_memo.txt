@@ -1,0 +1,11 @@
+Home Theater controller memo
+
+IR codes
+	HDMI switch power on/off: NEC 61D648B7  
+	Soundbar on/off: 100C (tai 1100C, tai joku random??--> random johtuu interferencestä, esim sormi kaukon IR ledin edessä) Decoded RC6(4): Value:100C (20 bits)
+	Projector on/off: UNKNOWN: value: C573E684 			(???)
+
+
+    
+    RS485Serial.print("POWER 00\n\r"); <-- Tällä saatu HDMi switch päälle ja pois. Println() ilman rivinvaihtomerkkejä ei pelittäny
+	
