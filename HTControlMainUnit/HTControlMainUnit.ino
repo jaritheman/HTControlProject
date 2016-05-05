@@ -33,7 +33,7 @@ void setup()
 }
 
 void loop()
-{
+{	
 	RS485_ir_receiver_serial.listen();
 	if (RS485_ir_receiver_serial.available())
 	{		

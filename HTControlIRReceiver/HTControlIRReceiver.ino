@@ -26,7 +26,10 @@ void setup()
 {
 	//if (DEBUGPRINT) 
 	Serial.begin(9600);
-	
+	while (!Serial) {
+		; // wait for serial port to connect. Needed for native USB port only
+	}
+
 	irrecv.enableIRIn(); // Start the receiver
 	/*irrecv.blink13(true);*/	
 	pinMode(WAIT_NEXT_COMMAND_LED_PIN, OUTPUT);
