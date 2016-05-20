@@ -15,6 +15,8 @@ namespace HTControlHTPCTrayApplication
 		static SerialPort serialPort;
 		static int comPortNumber = 0;
         static bool testMode = false;
+        static bool writeLog = true;
+        static int startupDelay = 0;
         static ProcessIcon pi = new ProcessIcon();
 		/// <summary>
 		/// The main entry point for the application.
@@ -22,32 +24,48 @@ namespace HTControlHTPCTrayApplication
 		[STAThread]
 		static void Main()
 		{
+            appendLineToLog("--- Application started at " + DateTime.Now.ToString());
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			            
             try
             {
+                
                 //read settings from settings.txt file
+                appendLineToLog("Before Reading settings");
                 readSettings();
+                appendLineToLog("After reading settings");
+
+                //wait for specified amount of seconds
+                System.Threading.Thread.Sleep(startupDelay * 1000);
 
                 //open serial port 
+                appendLineToLog("Before opening port");
                 openPort();
+                appendLineToLog("After opening port ");
 
                 //show tray icon
+                appendLineToLog("Before pi.Display()");
                 pi.Display(comPortNumber);
-                
+                appendLineToLog("After pi.Display()");
+
+                appendLineToLog("Before Application.Run()");
                 //make sure the application runs
                 Application.Run();
+                appendLineToLog("After Application.Run()");
             }
             catch (Exception ex)
             {
+                appendLineToLog("Error catched: "+ex.Message);
                 MessageBox.Show(null, ex.Message, "Application cannot run", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
+                appendLineToLog("Finalizing");
                 closePort();
                 if (pi != null) pi.Dispose();
             }
+            appendLineToLog("--- Application exit at " + DateTime.Now.ToString());
 		}
 
 		private static void openPort()
@@ -97,7 +115,7 @@ namespace HTControlHTPCTrayApplication
             
             while (pi.BalloonVibible) 
             {
-                //Wait for user to cancel while ballon is visible
+                //Wait for user to cancel while balloon is visible
             }
 
             if (!pi.Cancelled)
@@ -141,6 +159,12 @@ namespace HTControlHTPCTrayApplication
                             case "testmode":
                                 testMode = bool.Parse(parts[1].Trim());                                
                                 break;
+                            case "startupdelay":
+                                startupDelay = int.Parse(parts[1].Trim());
+                                break;
+                            case "writelog":
+                                writeLog = bool.Parse(parts[1].Trim());
+                                break;
                             default:
                                 break;
                         }
@@ -151,6 +175,19 @@ namespace HTControlHTPCTrayApplication
             {
                 throw new Exception ("settings.txt file not found!");
             }            
+        }
+
+        private static void appendLineToLog(string text)
+        {
+            if (writeLog)
+            {
+                string logFileName = @"log.txt";
+                string dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                string path = Path.Combine(dir, logFileName);
+
+
+                File.AppendAllText(path, text + Environment.NewLine);
+            }
         }
 	}
 }
