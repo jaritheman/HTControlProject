@@ -20,6 +20,9 @@ SoftwareSerial USB_HTPC_serial(USB_HTPC_RECEIVE_PIN, USB_HTPC_TRANSMIT_PIN); // 
 
 String cmd;
 
+const char projectorOnBytes[] = { 2, 'P', 'O', 'N', 3, '\0' };
+const char projectorOffBytes[] = { 2, 'P', 'O', 'F', 3, '\0' };
+
 void setup()
 {
 	Serial.begin(9600);
@@ -40,7 +43,7 @@ void setup()
 	digitalWrite(3, LOW);  // Enable RS485 Receive (RS485 from IR receiver)
 
 	pinMode(2, OUTPUT);
-	digitalWrite(2, HIGH);  // Enable RS485 Transmit (RS485 from to projector)
+	digitalWrite(2, HIGH);  // Enable RS485 Transmit (RS485 to projector)
 	
 	debugPrint("HTControl main unit started");
 }
@@ -55,24 +58,24 @@ void loop()
 		if (cmd == "HTON")
 		{
 			debugPrint("HTON Received");						
-			RS232_HDMI_switch_serial.print("POWER 01\n\r");
+			RS485_Projector_serial.print(projectorOnBytes);
 			delay(100);
 			USB_HTPC_serial.println("HTON");
 			delay(100);
-			RS485_Projector_serial.print("POWER 01\n\r"); //todo: add actual command for power on Panasonic PT-AE2000
+			RS232_HDMI_switch_serial.print("POWER 01\n\r");			
 		}
 
 		if (cmd == "HTOFF")
 		{
 			debugPrint("HTOFF Received");
 			USB_HTPC_serial.println("HTOFF");
-			delay(10000); //wait for 10 seconds to allow used to cancel						
-			RS485_Projector_serial.print("POWER 00\n\r"); //todo: add actual command for power off Panasonic PT-AE2000
+			delay(10000); //wait for 10 seconds to allow user to cancel	HTPC shutdown								
+			RS485_Projector_serial.print(projectorOffBytes);
 			delay(100);
 			RS232_HDMI_switch_serial.print("POWER 00\n\r");			
-		}
-		delay(10);
+		}		
 	}
+	delay(10);
 }
 
 void debugPrint(String text)
