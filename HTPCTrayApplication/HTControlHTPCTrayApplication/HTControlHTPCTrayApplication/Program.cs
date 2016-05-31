@@ -138,7 +138,9 @@ namespace HTControlHTPCTrayApplication
         private static void readSettings()
         {
             string settingFileName = @"settings.txt";
-            string dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            //string dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location); //could make shortcut work from startup folder, so must put .exe there and therefore cannot have settings file in the same folder, so using hardcoded path for setting files instead
+            string dir = @"C:\HTControl\";
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             string path = Path.Combine(dir, settingFileName);
             
             if (File.Exists(path))
@@ -172,8 +174,20 @@ namespace HTControlHTPCTrayApplication
                 }
             }
             else
-            {
-                throw new Exception ("settings.txt file not found!");
+            {                
+                using (StreamWriter sw = File.CreateText(path))
+                {                                                                                
+                    sw.WriteLine("comport=3");
+                    sw.WriteLine("testmode=true");
+                    sw.WriteLine("startupdelay=0");
+                    sw.WriteLine("writelog=true");        
+            
+                    comPortNumber = 3;
+                    testMode = true;
+                    startupDelay = 0;
+                    writeLog = true;
+                }                
+                MessageBox.Show(null, path+ " not found, default file created", "Info",  MessageBoxButtons.OK, MessageBoxIcon.Information);
             }            
         }
 
@@ -182,9 +196,11 @@ namespace HTControlHTPCTrayApplication
             if (writeLog)
             {
                 string logFileName = @"log.txt";
-                string dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                //string dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                string dir = @"C:\HTControl\";
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 string path = Path.Combine(dir, logFileName);
-
+                
 
                 File.AppendAllText(path, text + Environment.NewLine);
             }
